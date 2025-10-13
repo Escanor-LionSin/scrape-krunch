@@ -1,5 +1,7 @@
 # 📰 News Analyzer with LLM Summarization
 
+![Hacktoberfest 2025 banner](./scrape_krunch_hacktoberfest.png)
+
 This project scrapes the latest news articles from various domains like **Business**, **Technology**, **Health**, **Sports**, **Entertainment**, and even **Reddit posts**—then feeds them into a locally running **LLM (via Ollama)** to generate a detailed analysis.
 
 ## 🚀 Features
