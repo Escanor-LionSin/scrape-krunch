@@ -3,6 +3,10 @@ from bs4 import BeautifulSoup
 from ollama import chat, ChatResponse
 import time
 from duckduckgo_search import DDGS as ddgs
+from article_cache import ArticleCache
+
+# Initialize the cache
+article_cache = ArticleCache()
 
 
 def search_duckduckgo(query, max_results=10):
@@ -16,28 +20,38 @@ def get_article_links(count=3):
         query = "latest buissness news 2025"
         print(f"biz articles getting..")
 
-        results = search_duckduckgo(query, max_results=count * 2)
+        results = search_duckduckgo(query, max_results=count * 3)  # Get more results to account for cached ones
         articles = []
 
-        for result in results[:count]:
+        for result in results:
             if result.get('title') and result.get('href'):
                 url = result['href']
+                # Skip if article is already processed
+                if article_cache.is_article_processed(url, result['title']):
+                    print(f"Skipping previously processed article: {result['title']}")
+                    continue
+                    
                 if any(source in url.lower() for source in
                        ['reuters', 'bloomberg', 'wsj', 'marketwatch', 'cnbc', 'yahoo', 'finance']):
                     articles.append({
                         "title": result['title'],
                         "link": url
                     })
+                    article_cache.add_article(url, result['title'])
                     if len(articles) >= count:
                         break
 
         if not articles:
-            for result in results[:count]:
+            for result in results:
                 if result.get('title') and result.get('href'):
+                    if article_cache.is_article_processed(result['href'], result['title']):
+                        print(f"Skipping previously processed article: {result['title']}")
+                        continue
                     articles.append({
                         "title": result['title'],
                         "link": result['href']
                     })
+                    article_cache.add_article(result['href'], result['title'])
                     if len(articles) >= count:
                         break
 
@@ -74,7 +88,14 @@ def get_bbc_business_articles(count=3):
 
                 if title and len(title) > 10:
                     full_url = href if href.startswith("http") else f"https://www.bbc.com{href}"
+                    
+                    # Skip if article is already processed
+                    if article_cache.is_article_processed(full_url, title):
+                        print(f"Skipping previously processed article: {title}")
+                        continue
+                        
                     articles.append({"title": title, "link": full_url})
+                    article_cache.add_article(full_url, title)
 
                     if len(articles) >= count:
                         break
@@ -134,7 +155,14 @@ def get_tech_articles(count=3):
     for link in article_links:
         title = link.get_text(strip=True)
         href = link["href"]
+        
+        # Skip if article is already processed
+        if article_cache.is_article_processed(href, title):
+            print(f"Skipping previously processed article: {title}")
+            continue
+            
         articles.append({"title": title, "link": href})
+        article_cache.add_article(href, title)
         if len(articles) >= count:
             break
     return articles
@@ -176,7 +204,14 @@ def get_sports_articles(count=3):
         if title_elem and "/story/" in href:
             title = title_elem.get_text(strip=True)
             full_url = href if href.startswith("http") else "https://www.espn.com" + href
+            
+            # Skip if article is already processed
+            if article_cache.is_article_processed(full_url, title):
+                print(f"Skipping previously processed article: {title}")
+                continue
+                
             articles.append({"title": title, "link": full_url})
+            article_cache.add_article(full_url, title)
             if len(articles) >= count:
                 break
     return articles
@@ -216,7 +251,14 @@ def get_health_articles(count=3):
         if title_elem and "/health-news/" in href:
             title = title_elem.get_text(strip=True)
             full_url = href if href.startswith("http") else "https://www.healthline.com" + href
+            
+            # Skip if article is already processed
+            if article_cache.is_article_processed(full_url, title):
+                print(f"Skipping previously processed article: {title}")
+                continue
+                
             articles.append({"title": title, "link": full_url})
+            article_cache.add_article(full_url, title)
             if len(articles) >= count:
                 break
     return articles
@@ -255,7 +297,14 @@ def get_entertainment_articles(count=3):
         title_elem = link.find("h3") or link.find("h2")
         if title_elem and "variety.com" in href and "/news/" in href:
             title = title_elem.get_text(strip=True)
+            
+            # Skip if article is already processed
+            if article_cache.is_article_processed(href, title):
+                print(f"Skipping previously processed article: {title}")
+                continue
+                
             articles.append({"title": title, "link": href})
+            article_cache.add_article(href, title)
             if len(articles) >= count:
                 break
     return articles
