@@ -5,7 +5,6 @@ import time
 from duckduckgo_search import DDGS as ddgs
 from article_cache import ArticleCache
 
-# Initialize the cache
 article_cache = ArticleCache()
 
 
@@ -26,7 +25,6 @@ def get_article_links(count=3):
         for result in results:
             if result.get('title') and result.get('href'):
                 url = result['href']
-                # Skip if article is already processed
                 if article_cache.is_article_processed(url, result['title']):
                     print(f"Skipping previously processed article: {result['title']}")
                     continue
@@ -89,7 +87,6 @@ def get_bbc_business_articles(count=3):
                 if title and len(title) > 10:
                     full_url = href if href.startswith("http") else f"https://www.bbc.com{href}"
                     
-                    # Skip if article is already processed
                     if article_cache.is_article_processed(full_url, title):
                         print(f"Skipping previously processed article: {title}")
                         continue
@@ -156,7 +153,6 @@ def get_tech_articles(count=3):
         title = link.get_text(strip=True)
         href = link["href"]
         
-        # Skip if article is already processed
         if article_cache.is_article_processed(href, title):
             print(f"Skipping previously processed article: {title}")
             continue
@@ -205,7 +201,6 @@ def get_sports_articles(count=3):
             title = title_elem.get_text(strip=True)
             full_url = href if href.startswith("http") else "https://www.espn.com" + href
             
-            # Skip if article is already processed
             if article_cache.is_article_processed(full_url, title):
                 print(f"Skipping previously processed article: {title}")
                 continue
@@ -252,7 +247,6 @@ def get_health_articles(count=3):
             title = title_elem.get_text(strip=True)
             full_url = href if href.startswith("http") else "https://www.healthline.com" + href
             
-            # Skip if article is already processed
             if article_cache.is_article_processed(full_url, title):
                 print(f"Skipping previously processed article: {title}")
                 continue
@@ -298,7 +292,6 @@ def get_entertainment_articles(count=3):
         if title_elem and "variety.com" in href and "/news/" in href:
             title = title_elem.get_text(strip=True)
             
-            # Skip if article is already processed
             if article_cache.is_article_processed(href, title):
                 print(f"Skipping previously processed article: {title}")
                 continue
