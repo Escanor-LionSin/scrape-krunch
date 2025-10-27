@@ -5,7 +5,9 @@ import time
 from duckduckgo_search import DDGS as ddgs
 from article_cache import ArticleCache
 
-article_cache = ArticleCache()
+#CACHE_LIMIT = 5
+#max size set to low number for testing needs below, else, default is set at 50
+article_cache = ArticleCache("""max_size = CACHE_LIMIT""")
 
 
 def search_duckduckgo(query, max_results=10):
@@ -16,7 +18,7 @@ def search_duckduckgo(query, max_results=10):
 
 def get_article_links(count=3):
     try:
-        query = "latest buissness news 2025"
+        query = "latest business news 2025"
         print(f"biz articles getting..")
 
         results = search_duckduckgo(query, max_results=count * 3)  # Get more results to account for cached ones
